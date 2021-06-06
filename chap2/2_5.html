@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3 example</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+<style>
+    
+</style>
+</head>
+<body>
+    
+</body>
+<script>
+
+(async () => {
+
+    // load data
+    const cityData = await d3.csv('../data/cities.csv');
+    const tweetsData = await d3.json('../data/tweets.json');
+    console.log(cityData, tweetsData);
+
+    const tweets = tweetsData.tweets;
+    const newTweets = tweets.map(el => {
+        el.impact = el.favorites.length + el.retweets.length;  // IF = # of favorites + # of retweets
+        el.tweetTime = new Date(el.timestamp);                 // ISO 8906 -> Date obj.
+        return el;
+    });
+    const maxImpact = d3.max(newTweets, el => el.impact);
+    const dateExtent = d3.extent(newTweets, el => el.tweetTime);
+
+    const timeRamp = d3.scaleTime().domain(dateExtent).range([20, 480]);
+    const yScale = d3.scaleLinear().domain([0, maxImpact]).range([0, 460]);
+    const radiusScale = d3.scaleLinear().domain([0, maxImpact]).range([1, 20]);
+    const colorScale = d3.scaleLinear().domain([0, maxImpact]).range(['white', '#990000']);
+    const svg = d3.select('body').append('svg').attr('style', 'height: 500px; width: 500px; border: 1px solid lightblue;');
+    
+    const tweetGroup = d3.select('svg')
+        .selectAll('circle')
+        .data(newTweets, d => JSON.stringify(d))  // set binding key
+        .enter()
+        .append('circle')
+        .attr('r', d => radiusScale(d.impact))
+        .attr('cx', (d, i) => timeRamp(d.tweetTime))
+        .attr('cy', d => 480 - yScale(d.impact))
+        .style('fill', '#990000')
+        .style('stroke', 'black')
+        .style('stroke-width', '1px');
+
+    const filteredTweets = newTweets.filter(el => el.impact > 0);
+    d3.selectAll('circle')
+        .data(filteredTweets, d => JSON.stringify(d))
+        .exit()
+        .remove();
+    
+})();
+
+
+
+</script>
+</html>

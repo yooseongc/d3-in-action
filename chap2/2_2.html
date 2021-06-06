@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3 example</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+<style>
+    
+</style>
+</head>
+<body>
+    
+    <svg id="svg1" style="border: 1px solid lightgray;"></svg>
+    <svg id="svg2" style="border: 1px solid lightgray;"></svg>
+    <svg id="svg3" style="border: 1px solid lightgray;"></svg>
+    <svg id="svg4" style="border: 1px solid lightgray;"></svg>
+</body>
+<script>
+
+(async () => {
+
+    // load data
+    const cityData = await d3.csv('../data/cities.csv');
+    const tweetsData = await d3.json('../data/tweets.json');
+    console.log(cityData, tweetsData);
+
+    // 4. creation
+    
+    d3.select('body').selectAll('div.cities')
+        .data(cityData)  // binding data to selection
+        .enter()         // if data more than DOM selection?
+        .append('div')   //    append new div
+        .attr('class', 'cities')
+        .html((d, i) => d.label);
+    console.log(d3.select('body').selectAll('div.cities'));
+    console.log(document.getElementsByClassName('cities')[0].__data__);
+
+    // no-scale
+    d3.select('svg#svg1')
+        .selectAll('rect')
+        .data([15, 50, 22, 8, 100, 10])
+        .enter()
+        .append('rect')
+        .attr('width', 10)
+        .attr('height', d => d)
+        .style('fill', 'blue')
+        .style('stroke', 'red')
+        .style('stroke-width', '1px')
+        .style('opacity', 0.25)
+        .attr('x', (d, i) => i * 10)
+        .attr('y', d => 100 - d);
+
+    // using y-scale
+    const arrays = [14, 68, 24500, 430, 19, 1000, 5555];
+    const yScale = d3.scaleLinear().domain([0, 24500]).range([0, 100]);
+    d3.select('svg#svg2')
+        .selectAll('rect')
+        .data(arrays)
+        .enter()
+        .append('rect')
+        .attr('width', 10)
+        .attr('height', d => yScale(d))
+        .style('fill', 'blue')
+        .style('stroke', 'red')
+        .style('stroke-width', '1px')
+        .style('opacity', 0.25)
+        .attr('x', (d, i) => i * 10)
+        .attr('y', d => 100 - yScale(d));
+
+    // using polylinear-scale
+    const yScale2 = d3.scaleLinear().domain([0, 100, 1000, 24500]).range([0, 50, 75, 100]);
+    d3.select('svg#svg3')
+        .selectAll('rect')
+        .data(arrays)
+        .enter()
+        .append('rect')
+        .attr('width', 10)
+        .attr('height', d => yScale2(d))
+        .style('fill', 'blue')
+        .style('stroke', 'red')
+        .style('stroke-width', '1px')
+        .style('opacity', 0.25)
+        .attr('x', (d, i) => i * 10)
+        .attr('y', d => 100 - yScale2(d));
+
+    // using polylinear-scale with clamp
+    const yScale3 = d3.scaleLinear().domain([0, 100, 500]).range([0, 50, 100]).clamp(true);
+    d3.select('svg#svg4')
+        .selectAll('rect')
+        .data(arrays)
+        .enter()
+        .append('rect')
+        .attr('width', 10)
+        .attr('height', d => yScale3(d))
+        .style('fill', 'blue')
+        .style('stroke', 'red')
+        .style('stroke-width', '1px')
+        .style('opacity', 0.25)
+        .attr('x', (d, i) => i * 10)
+        .attr('y', d => 100 - yScale3(d));
+
+})();
+
+
+
+</script>
+</html>

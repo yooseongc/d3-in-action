@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3 example</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+<style>
+    
+</style>
+</head>
+<body>
+    
+</body>
+<script>
+
+(async () => {
+
+    // load data
+    const cityData = await d3.csv('../data/cities.csv');
+    const tweetsData = await d3.json('../data/tweets.json');
+    console.log(cityData, tweetsData);
+
+    const maxPopulation = d3.max(cityData, el => parseInt(el.population));
+    const yScale = d3.scaleLinear().domain([0, maxPopulation]).range([0, 460]);
+    d3.select('body')
+        .append('svg')
+        .attr('style', 'height: 480px; width: 600px; border: 1px solid lightblue;')
+        .selectAll('rect')
+        .data(cityData)
+        .enter()
+        .append('rect')
+        .attr('width', 50)
+        .attr('height', d => yScale(parseInt(d.population)))
+        .attr('x', (d, i) => i * 60)
+        .attr('y', d => 480 - yScale(parseInt(d.population)))
+        .style('fill', 'blue')
+        .style('stroke', 'red')
+        .style('stroke-width', '1px')
+        .style('opacity', 0.25);
+
+    const tweets = tweetsData.tweets;
+    const nestedTweets = d3.group(tweets, el => el.user);
+    const maxTweets = d3.max(nestedTweets, ([key, values]) => {
+        return values.length;
+    });
+    const yScale2 = d3.scaleLinear().domain([0, maxTweets]).range([0, 100]);
+    d3.select('body')
+        .append('svg')
+        .attr('style', 'height: 100px; width: 600px; border: 1px solid lightblue;')
+        .selectAll('rect')
+        .data(nestedTweets)
+        .enter()
+        .append('rect')
+        .attr('width', 50)
+        .attr('height', ([k, v]) => yScale2(v.length))
+        .attr('x', (d, i) => i * 60)
+        .attr('y', ([k, v]) => 100 - yScale2(v.length))
+        .style('fill', 'blue')
+        .style('stroke', 'red')
+        .style('stroke-width', '1px')
+        .style('opacity', 0.25);
+
+    console.log(tweets);
+    const newTweets = tweets.map(el => {
+        el.impact = el.favorites.length + el.retweets.length;  // IF = # of favorites + # of retweets
+        el.tweetTime = new Date(el.timestamp);                 // ISO 8906 -> Date obj.
+        return el;
+    });
+    const maxImpact = d3.max(newTweets, el => el.impact);
+    const dateExtent = d3.extent(newTweets, el => el.tweetTime);
+
+    const timeRamp = d3.scaleTime().domain(dateExtent).range([20, 480]);
+    const impactScale = d3.scaleLinear().domain([0, maxImpact]).range([0, 460]);
+    const radiusScale = d3.scaleLinear().domain([0, maxImpact]).range([1, 20]);
+    const colorScale = d3.scaleLinear().domain([0, maxImpact]).range(['white', '#990000']);
+
+    d3.select('body')
+        .append('svg')
+        .attr('style', 'height: 500px; width: 500px; border: 1px solid lightblue;')
+        .selectAll('circle')
+        .data(newTweets)
+        .enter()
+        .append('circle')
+        .attr('r', d => radiusScale(d.impact))
+        .attr('cx', (d, i) => timeRamp(d.tweetTime))
+        .attr('cy', d => 480 - impactScale(d.impact))
+        .style('fill', d => colorScale(d.impact))
+        .style('stroke', 'black')
+        .style('stroke-width', '1px');
+    
+})();
+
+
+
+</script>
+</html>
