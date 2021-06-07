@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3 example</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="./index.js"></script>
+<style>
+    text {
+        font-size: 10px;
+    }
+    g > text.active {
+        font-size: 30px !important;
+    }
+    circle {
+        fill: pink;
+        stroke: black;
+        stroke-width: 1px;
+    }
+    circle.active {
+        fill: red;
+    }
+    circle.inactive {
+        fill: gray;
+    }
+
+    #modal {
+        position: fixed;
+        left: 150px;
+        top: 20px;
+        z-index: 1;
+        background-color: white;
+        border: 1px solid black;
+        box-shadow: 10px 10px 5px #888888;
+    }
+    tr {
+        border: 1px solid gray;
+    }
+    td {
+        font-size: 10px;
+    }
+    td.data {
+        font-weight: 900;
+    }
+</style>
+</head>
+<body>
+    <div id="vis">
+        <svg style="width: 500px; height: 500px; border: 1px solid lightgray;"></svg>
+    </div>
+    <div id="controls"></div>
+</body>
+</html>
