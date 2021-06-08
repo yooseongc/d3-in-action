@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3 example</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+<style>
+  
+</style>
+</head>
+<body>
+    <div id="vis">
+        <svg style="width: 550px; height: 550px; border: 1px solid lightgray;"></svg>
+    </div>
+    
+<script>
+
+d3.csv('../data/boxplot.csv').then(scatterplot);
+
+function scatterplot(data) {
+    console.log(data);
+
+    const margin = 25;
+
+    const xScale = d3.scaleLinear().domain([1, 8]).range([20, 470]);
+    const yScale = d3.scaleLinear().domain([0, 100]).range([480, 20]);
+
+    const yAxis = d3.axisRight().scale(yScale).ticks(8).tickSize(-470);
+    d3.select('svg')
+        .append('g')
+        .attr('transform', 'translate(495, 25)')
+        .attr('id', 'yAxisG')
+        .call(yAxis);
+    
+    const xAxis = d3.axisBottom().scale(xScale).tickValues([1, 2, 3, 4, 5, 6, 7]).tickSize(-470);
+    d3.select('svg')
+        .append('g')
+        .attr('transform', 'translate(25, 505)')
+        .attr('id', 'xAxisG')
+        .call(xAxis);
+
+    d3.select('svg')
+        .selectAll('circle.median')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('class', 'median')
+        .attr('r', 5)
+        .attr('cx', d => margin + xScale(d.day))
+        .attr('cy', d => margin + yScale(d.median))
+        .style('fill', 'darkgray');
+}
+
+</script>
+</body>
+</html>
